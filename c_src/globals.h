@@ -5,11 +5,11 @@
 #define false 0
 #define true 1
 
-#define u8 unsigned char
-#define s8 signed char
-#define u16 unsigned short
-#define s16 signed short
-#define u32 unsigned int
-#define s32 signed int
+typedef unsigned char u8;
+typedef signed char s8;
+typedef unsigned short u16;
+typedef short s16;
+typedef unsigned int u32;
+typedef signed int s32;
 
 #endif // GLOBALS_H

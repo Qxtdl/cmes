@@ -1,7 +1,6 @@
 /*
-    Header-only libary for tile drawing functions.
-    For brutus's tile-based GPU.
-    Meant to run on Taurus RV32I System.
+    Header-only libary for the tile-based GPU by Brutus.
+    - Meant to run on Taurus RV32I System.
 */
 
 #ifndef TILEGPU_H
@@ -9,21 +8,23 @@
 
 #include "globals.h"
 
-#define TILEGPU_START_CLEAR ((volatile u8 *)0xFFFF)  // 2 bits, to start drawing/clear the screen
-#define TILEGPU_TILEGPU_X   ((volatile u8 *)0xFFFE)  // x cord
-#define TILEGPU_TILEGPU_Y   ((volatile u8 *)0xFFFD)  // y cord
-#define TILEGPU_TILEADDR    ((volatile u16 *)0xFFFB) // tile id low byte
-#define TILEGPU_FX_OPCODE   ((volatile u8 *)0xFFFA)  // effects opcode
-#define TILEGPU_FX_IMM      ((volatile u16 *)0xFFF8) // effects color value
+#define TILEGPU_X           ((volatile u8  *)0xFFFF)
+#define TILEGPU_Y           ((volatile u8  *)0xFFFE)
+#define TILEGPU_ADDR        ((volatile u16 *)0xFFFC)
+#define TILEGPU_FX_OPCODE   ((volatile u8  *)0xFFFB)
+#define TILEGPU_FX_IMM      ((volatile u16 *)0xFFFA)
+#define TILEGPU_DRAW        1
+#define TILEGPU_CLEAR       2
+#define TILEGPU_CONTROLS    ((volatile u8  *)0xFFF9)
 
 // Draw a tile at the specified (x, y) coordinates with the given tile ID.
 // Coordinates are in pixel units.
 void tilegpu_draw(u8 x, u8 y, u16 tile_id)
 {
-    *TILEGPU_TILEGPU_X = x;
-    *TILEGPU_TILEGPU_Y = y;
-    *TILEGPU_TILEADDR = tile_id;
-    *TILEGPU_START_CLEAR = 2;
+    *TILEGPU_X = x;
+    *TILEGPU_Y = y;
+    *TILEGPU_ADDR = tile_id;
+    *TILEGPU_CONTROLS = TILEGPU_DRAW;
 }
 
 // Draw a tile at the specified (x, y) coordinates with the given tile ID.
@@ -31,35 +32,38 @@ void tilegpu_draw(u8 x, u8 y, u16 tile_id)
 // Apply special effects based on fx_op and fx_imm parameters.
 
 // fx opcodes
-#define NO_FX   0
-#define AND_COLOR 1
-#define NAND_COLOR 2
-#define XOR_COLOR 3
-#define OR_COLOR 4
-#define NOR_COLOR 5
+#define NO_FX       0
+#define AND_COLOR   1
+#define NAND_COLOR  2
+#define XOR_COLOR   3
+#define OR_COLOR    4
+#define NOR_COLOR   5
 
 void tilegpu_fxdraw(u8 x, u8 y, u16 tile_id, u8 fx_op, u16 fx_imm)
 {
     *TILEGPU_FX_OPCODE = fx_op;
     *TILEGPU_FX_IMM = fx_imm;
-    tilegpu_draw(x,y,tile_id);
+    tilegpu_draw(x, y, tile_id);
 }
 
 // Clear the entire screen.
 void tilegpu_clearscreen(void)
 {
-    *TILEGPU_START_CLEAR = 0b01;
+    *TILEGPU_CONTROLS = TILEGPU_CLEAR;
 }
 
 // Print a null-terminated string at the specified (x, y) coordinates.
-// (this is too dang slow)
 void tilegpu_puts(u8 x, u8 y, const char *str)
 {   
-    u8 pos_x=x, pos_y=y;
-    for (u16 i = 0; str[i]!='\0'; i++) 
+    u8 x2 = x, y2 = y;
+    for (u16 i = 0; str[i] != '\0'; i++) 
     {
-        tilegpu_draw(pos_x++, pos_y, (u16)str[i]);
-        if ((s8)pos_x>=48) {pos_x=0;pos_y++;}
+        tilegpu_draw(x2++, y2, str[i]);
+        if (x2 >= 48 || str[i] == '\n') 
+        {
+            x2 = 0;
+            y2++;
+        }
     }
 }
 

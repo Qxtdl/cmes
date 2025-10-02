@@ -1,8 +1,14 @@
 #include "globals.h"
 #include "memorymap.h"
+#include "stdio.h"
 #include "tilegpu.h"
 
-bool power_on_self_test()
+//#define DISABLE_POST
+
+void os_main(void);
+
+#ifndef DISABLE_POST
+bool power_on_self_test(void)
 {
     /*
         This function performs a series of arithmetic, logical, and comparison tests
@@ -10,6 +16,10 @@ bool power_on_self_test()
         to a unique value and returns false. Otherwise, returns true which from there
         the main function can set POST_RESULT to POST_SUCCESS.
     */
+
+    // Skip if user is lazy
+    if (*USER_ASCII == '\r')
+        return true;
 
     int a = 12345, b = 6789;
     if ((a + b) != 19134) 
@@ -155,22 +165,37 @@ bool power_on_self_test()
 
     return true;
 }
+#endif // DISABLE_POST
 
 
-int main()
+int main(void)
 {
+    #ifndef DISABLE_POST
     if (power_on_self_test())
     {
-        tilegpu_puts(0, 0, "Pass\n");
+    stdio_puts("POST PASSED!\n");
         *POST_RESULT = POST_SUCCESS;
     }
     else
     {
         *POST_RESULT = POST_FAILURE;
-        tilegpu_puts(0, 0, "Fail\n");
+    stdio_puts("POST FAILED! Halting.");
         while (1);  
     }
-    tilegpu_clearscreen();
+    #endif // DISABLE_POST
+    asm volatile ("ebreak");
+    os_main();
+}
 
-    tilegpu_puts(0, 0,"Hello, World!\nTest");
+void os_main(void)
+{
+    stdio_puts("Welcome to CMES!\n");
+    while (1)
+    {
+    stdio_puts("> ");
+    char *input = stdio_gets();
+    stdio_puts("You typed: ");
+    stdio_puts(input);
+    stdio_puts("\n");
+    }
 }

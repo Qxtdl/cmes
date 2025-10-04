@@ -1,5 +1,5 @@
 .section .text
-.extern kmain
+.extern main
 .globl _start
 .globl hang
 

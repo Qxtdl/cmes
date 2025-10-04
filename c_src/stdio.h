@@ -11,7 +11,9 @@
 
 #define GETS_BUFSIZE 128
 
-char *stdio_gets(void)
+void putc(char c);
+
+char *gets(void)
 {
     static char input[GETS_BUFSIZE];
 
@@ -21,8 +23,9 @@ char *stdio_gets(void)
     {
         if (*USER_READY)
         {
+            
             scancode = *USER_ASCII;
-
+            
             // Check wether to end getting input
             if (scancode == '\r' || i == GETS_BUFSIZE - 1)
             {
@@ -33,24 +36,49 @@ char *stdio_gets(void)
             if (scancode == '\b' && i > 0)
             {
                 i--;
+                *TTY_LOC = (*TTY_LOC - 1);
+                *TTY_CHAR = ' ';
                 continue;
             }
+            putc(scancode);
             input[i++] = scancode;
         }
     }
 }
 
-// May be better to code this in ASM
-u8 stdio_puts(const char *str)
+void putc(char c)
+{
+    bool newline = false;
+    if (c == '\n')
+    {
+        *TTY_LOC = ((*TTY_LOC + 32) & 0b11100000);
+        newline = true;
+        *TTY_CHAR = c;
+        return;
+    }
+    if (!newline)
+        (*TTY_LOC)++;;
+    *TTY_CHAR = c;
+    *TTY_WRITE = true;
+}
+
+void puts(const char *str)
 {
     u8 i = 0;
     while (str[i] != '\0')
     {
-        *TTY_LOC = i;
+        bool newline = false;
+        if (str[i] == '\n' || *TTY_LOC == 255)
+        {
+            *TTY_LOC = ((*TTY_LOC + 32) & 0b11100000);
+            newline = true;
+        }
+        if (!newline)
+            (*TTY_LOC)++;;
         *TTY_CHAR = str[i++];
         *TTY_WRITE = true;
     }
-    return i;
 }
+
 
 #endif // STDIO_H

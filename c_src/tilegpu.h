@@ -3,10 +3,12 @@
     - Meant to run on Taurus RV32I System.
 */
 
+
 #ifndef TILEGPU_H
 #define TILEGPU_H
 
 #include "globals.h"
+#include "memorymap.h" // Not really needed, just in case
 
 #define TILEGPU_X           ((volatile u8  *)0xFFFF)
 #define TILEGPU_Y           ((volatile u8  *)0xFFFE)

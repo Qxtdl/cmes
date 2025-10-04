@@ -13,5 +13,5 @@ SECTIONS
   .data : { *(.data*) } > RAM AT > ROM
   .bss  : { *(.bss*) *(COMMON) } > RAM
 
-  _stack_top = 0xFFF0;
+  _stack_top = 0xFFD0;
 }

@@ -6,7 +6,7 @@ OBJCOPY = $(RISCV_PREFIX)objcopy
 
 BUILD_DIR = build
 CFLAGS = -march=rv32i -mabi=ilp32
-CCFLAGS = -march=rv32i -mabi=ilp32 -nostdlib -ffreestanding -fno-exceptions -fno-builtin -mstrict-align -Wall -Wextra -g -fverbose-asm -T linker.ld
+CCFLAGS = -march=rv32i -mabi=ilp32 -nostdlib -ffreestanding -fno-exceptions -fno-builtin -mstrict-align -Wall -Wextra -g -fverbose-asm -T linker.ld -lgcc
 S_SOURCE = bootloader.s
 C_SOURCE = c_src/main.c
 
@@ -15,6 +15,8 @@ all: bootloader cfile dump
 dump:
 	$(RISCV_PREFIX)objdump -d -M no-aliases $(BUILD_DIR)/cmes.elf >> $(BUILD_DIR)/dump.s
 	$(RISCV_PREFIX)objdump -S -d -M no-aliases $(BUILD_DIR)/cmes.elf >> $(BUILD_DIR)/verbose_dump.s
+	$(GCC) -E $(C_SOURCE) -o $(BUILD_DIR)/preprocessed.c
+
 
 cfile:
 	$(GCC) $(CCFLAGS) -o $(BUILD_DIR)/cmes.elf $(BUILD_DIR)/bootloader.o $(C_SOURCE)
@@ -24,4 +26,4 @@ bootloader:
 	$(AS) $(CFLAGS) -o $(BUILD_DIR)/bootloader.o $(S_SOURCE)
 
 clean:
-	rm -rf $(BUILD_DIR)/bootloader.o $(BUILD_DIR)/cmes.elf $(BUILD_DIR)/cmes.bin $(BUILD_DIR)/dump.s
+	rm -rf $(BUILD_DIR)/bootloader.o $(BUILD_DIR)/cmes.elf $(BUILD_DIR)/cmes.bin $(BUILD_DIR)/dump.s $(BUILD_DIR)/verbose_dump.s

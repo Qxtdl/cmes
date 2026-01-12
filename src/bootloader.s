@@ -1,9 +1,8 @@
 .section .text
 .extern main
-.globl _start
-.globl hang
 
 _start:
+    nop
     # Reset all registers
     li x1, 0
     li x2, 0

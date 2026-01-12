@@ -1,0 +1,1 @@
+void hex(int argc, char *argv[]);

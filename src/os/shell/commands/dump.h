@@ -1,0 +1,1 @@
+void dump(int argc, char *argv[]);

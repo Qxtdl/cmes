@@ -1,0 +1,1 @@
+void cat(int argc, char *argv[]);

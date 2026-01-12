@@ -21,7 +21,7 @@
 
 // Draw a tile at the specified (x, y) coordinates with the given tile ID.
 // Coordinates are in pixel units.
-void tilegpu_draw(u8 x, u8 y, u16 tile_id)
+static void tilegpu_draw(u8 x, u8 y, u16 tile_id)
 {
     *TILEGPU_X = x;
     *TILEGPU_Y = y;
@@ -41,7 +41,7 @@ void tilegpu_draw(u8 x, u8 y, u16 tile_id)
 #define OR_COLOR    4
 #define NOR_COLOR   5
 
-void tilegpu_fxdraw(u8 x, u8 y, u16 tile_id, u8 fx_op, u16 fx_imm)
+static void tilegpu_fxdraw(u8 x, u8 y, u16 tile_id, u8 fx_op, u16 fx_imm)
 {
     *TILEGPU_FX_OPCODE = fx_op;
     *TILEGPU_FX_IMM = fx_imm;
@@ -49,23 +49,33 @@ void tilegpu_fxdraw(u8 x, u8 y, u16 tile_id, u8 fx_op, u16 fx_imm)
 }
 
 // Clear the entire screen.
-void tilegpu_clearscreen(void)
+static void tilegpu_clearscreen(void)
 {
     *TILEGPU_CONTROLS = TILEGPU_CLEAR;
 }
 
 // Print a null-terminated string at the specified (x, y) coordinates.
-void tilegpu_puts(u8 x, u8 y, const char *str)
+static void tilegpu_puts(u8 x, u8 y, const char *str)
 {   
     u8 x2 = x, y2 = y;
     for (u16 i = 0; str[i] != '\0'; i++) 
     {
+        if (str[i] == '\n') y2+=2;
         tilegpu_draw(x2++, y2, str[i]);
         if (x2 >= 48 || str[i] == '\n') 
         {
             x2 = 0;
-            y2++;
+            y2+=2;
         }
+    }
+}
+
+static void tilegpu_print(const char *str) {
+    static u8 y = 0;
+    tilegpu_puts(0, y+=2, str);
+    if (y == 64) {
+        y = 0;
+        *TILEGPU_CONTROLS = TILEGPU_CLEAR;
     }
 }
 

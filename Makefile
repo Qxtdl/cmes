@@ -1,29 +1,54 @@
-RISCV_PREFIX = riscv64-unknown-elf-
+RISCV_PREFIX = ~/xpack-riscv-none-elf-gcc-15.2.0-1/bin/riscv-none-elf-
+
+CC = $(RISCV_PREFIX)gcc
+CFLAGS = -O3 -march=rv32i -mabi=ilp32 \
+	-Wno-error=unused-parameter \
+	-Wno-error=int-to-pointer-cast \
+	-Wno-error=unused-function \
+	-Werror -nostdlib -ffreestanding -fno-exceptions -fno-builtin \
+	-mstrict-align \
+	-g -Wall -Wextra \
+	-fverbose-asm -T linker.ld -lgcc
+
+ASFLAGS = -march=rv32i -mabi=ilp32
+
 AS = $(RISCV_PREFIX)as
 LD = $(RISCV_PREFIX)ld
-GCC = $(RISCV_PREFIX)gcc
 OBJCOPY = $(RISCV_PREFIX)objcopy
 
-BUILD_DIR = build
-CFLAGS = -march=rv32i -mabi=ilp32
-CCFLAGS = -march=rv32i -mabi=ilp32 -nostdlib -ffreestanding -fno-exceptions -fno-builtin -mstrict-align -Wall -Wextra -g -fverbose-asm -T linker.ld -lgcc
-S_SOURCE = bootloader.s
-C_SOURCE = c_src/main.c
+BUILD = build
+OUTPUT = cmes
 
-all: bootloader cfile dump
+CSRCS = $(shell find src -name '*.c')
+ASRCS = $(shell find src -name '*.s')
+COBJS = $(patsubst %.c,$(BUILD)/%.o,$(CSRCS))
+AOBJS = $(patsubst %.s,$(BUILD)/%.o,$(ASRCS))
+OBJS = $(AOBJS) $(COBJS)
+
+all: clean $(OBJS) $(OUTPUT) dump run
+
+force:
+
+$(BUILD)/%.o : %.s
+	@mkdir -p $(dir $@)
+	$(AS) $(ASFLAGS) -c $< -o $@
+
+$(BUILD)/%.o : %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OUTPUT): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(BUILD)/$(OUTPUT).elf
+	$(OBJCOPY) -O binary $(BUILD)/$(OUTPUT).elf $(BUILD)/$(OUTPUT).bin
 
 dump:
-	$(RISCV_PREFIX)objdump -d -M no-aliases $(BUILD_DIR)/cmes.elf >> $(BUILD_DIR)/dump.s
-	$(RISCV_PREFIX)objdump -S -d -M no-aliases $(BUILD_DIR)/cmes.elf >> $(BUILD_DIR)/verbose_dump.s
-	$(GCC) -E $(C_SOURCE) -o $(BUILD_DIR)/preprocessed.c
+	$(RISCV_PREFIX)objdump -d -M no-aliases $(BUILD)/$(OUTPUT).elf >> $(BUILD)/dump.s
+	$(RISCV_PREFIX)objdump -S -d -M no-aliases $(BUILD)/$(OUTPUT).elf >> $(BUILD)/verbose_dump.s
+	$(GCC) -E $(CSRCS) -o $(BUILD)/preprocessed.c
 
-
-cfile:
-	$(GCC) $(CCFLAGS) -o $(BUILD_DIR)/cmes.elf $(BUILD_DIR)/bootloader.o $(C_SOURCE)
-	$(OBJCOPY) -O binary $(BUILD_DIR)/cmes.elf $(BUILD_DIR)/cmes.bin
-
-bootloader:
-	$(AS) $(CFLAGS) -o $(BUILD_DIR)/bootloader.o $(S_SOURCE)
+run:
+	python taurus_encoder.py build/$(OUTPUT).bin
+	./cm2-riscv-emulator build/$(OUTPUT).bin
 
 clean:
-	rm -rf $(BUILD_DIR)/bootloader.o $(BUILD_DIR)/cmes.elf $(BUILD_DIR)/cmes.bin $(BUILD_DIR)/dump.s $(BUILD_DIR)/verbose_dump.s
+	rm -rf $(BUILD)

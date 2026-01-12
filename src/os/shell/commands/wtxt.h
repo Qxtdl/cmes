@@ -1,0 +1,1 @@
+void wtxt(int argc, char *argv[]);

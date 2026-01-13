@@ -1,0 +1,1 @@
+void diskstat(int argc, char *argv[]);

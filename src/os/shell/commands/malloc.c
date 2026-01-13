@@ -3,5 +3,5 @@
 #include "../../../taulib/string.h"
 
 void c_malloc(int argc, char *argv[]) {
-    malloc(hex_to_u16(argv[0]) - 1);
+    malloc(hex_str_to_u32(argv[0]) - 1);
 }

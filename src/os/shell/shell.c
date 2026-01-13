@@ -11,6 +11,8 @@
 #include "commands/hex.h"
 #include "commands/dump.h"
 #include "commands/wtxt.h"
+#include "commands/mkf.h"
+#include "commands/diskstat.h"
 
 #define MAX_COMMANDS 64
 #define MAX_COMMAND_NAME 16
@@ -32,6 +34,8 @@ struct {
     {"hex", hex},
     {"dump", dump},
     {"wtxt", wtxt},
+    {"mkf", mkf},
+    {"diskstat", diskstat},
     {NULL, NULL}
 };
 
@@ -42,7 +46,8 @@ static inline void dispatch_command(char *command) {
         return;
     }
     if (!strcmp(command, "help")) {
-        puts("\"l\" to enter legacy shell\n");
+        clear_tty
+        putc('\n');
         for (u32 i = 0; i < MAX_COMMANDS; i++) {
             if (!commands[i].name) {
                 return;

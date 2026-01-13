@@ -8,12 +8,12 @@ void run(int argc, char *argv[]) {
             puts("warning: file is not .exe\n");
         }
         if (strcmp(g_returned_file.extension, "pcval")) {
-            u16 pc_target = 0;
+            u32 pc_target = 0;
             read_n_disk(g_returned_file.data_ptr, 2, (u8 *)&pc_target);
             asm volatile (
                 "jalr  zero, %[addr], 0\n"
                 :
-                : [addr] "r" ((u32)pc_target)
+                : [addr] "r" (pc_target)
                 : "memory"
             );
         }
@@ -21,6 +21,7 @@ void run(int argc, char *argv[]) {
         program = malloc(g_returned_file.size);
         if (!program) {
             puts("OUT OF HEAP\n");
+            return;
         }
 
         read_n_disk(g_returned_file.data_ptr, g_returned_file.size, program);

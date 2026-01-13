@@ -5,30 +5,28 @@
 file_t g_returned_file;
 u16 returned_file_address;
 
-u8 read_disk(u16 addr) 
+u8 read_disk(u32 addr) 
 {
     *DISK_ADDRESS = addr;
     return *DISK_OUT;
 }
 
-void read_n_disk(u16 addr, u16 n, u8* target)
+void read_n_disk(u32 addr, u32 n, u8* target)
 {
-    for (u16 i = 0; i < n; i++) 
-    {
+    for (u32 i = 0; i < n; i++) 
         target[i] = read_disk(i+addr); 
-    }
 }
 
-void disk_write(u16 addr, u8 byte)
+void disk_write(u32 addr, u8 byte)
 {
     *DISK_ADDRESS = addr;
     *DISK_DATA = byte;
     *DISK_WRITE = true;
 }
 
-void disk_n_write(u16 start_addr, u16 size, u8* data)
+void disk_n_write(u32 start_addr, u32 size, u8* data)
 {
-    for (u16 i = 0; i <= size; i++)
+    for (u32 i = 0; i <= size; i++)
     {
         *DISK_ADDRESS = start_addr + i;
         *DISK_DATA = data[i];
@@ -36,17 +34,17 @@ void disk_n_write(u16 start_addr, u16 size, u8* data)
     }
 }
 
-errcode_t fs_create_new_file(const char *filename, const char *extension, u16 size, u8 *data)
+errcode_t fs_create_new_file(const char *filename, const char *extension, u32 size, u8 *data)
 {
     bool is_disk_formatted = read_disk(FS_FORMATTED);
 
-    u16 last_created_file_header_address;
+    u32 last_created_file_header_address;
     read_n_disk(HEADER_LAST_FILE_HEADER_CREATED_PTR, sizeof(u16), (u8 *)&last_created_file_header_address);
 
     file_t last_created_file;
     read_n_disk(last_created_file_header_address, sizeof(file_t), (u8 *)&last_created_file);
 
-    u16 free_data_region;
+    u32 free_data_region;
     if (is_disk_formatted)
         free_data_region = last_created_file.data_ptr + last_created_file.size;
     else free_data_region = HEADER_SIZE + 32;
@@ -78,7 +76,7 @@ errcode_t fs_modify_file(const char *filename)
 
 errcode_t fs_find(const char *filename) 
 {
-    for (u16 i = sizeof(file_t); i < HEADER_SIZE; i += sizeof(file_t)) {
+    for (u32 i = sizeof(file_t); i < HEADER_SIZE; i += sizeof(file_t)) {
         file_t target;
         read_n_disk(i,sizeof(file_t), (u8 *)&target);
         if (target.data_ptr == 0)
@@ -99,7 +97,7 @@ errcode_t fs_get_file_at(u32 index)
     return FS_OK;
 }
 
-u16 fs_read(void *dest, const char *filename) 
+u32 fs_read(void *dest, const char *filename) 
 {
     if (!fs_find(filename))
         return 0;
@@ -109,7 +107,6 @@ u16 fs_read(void *dest, const char *filename)
 
 void print_errcode(errcode_t code)
 {
-    putc('\n');
     switch (code) {
         case FS_OK: puts("FS_OK\n"); break;
         case FS_BAD: puts("FS_BAD\n"); break;

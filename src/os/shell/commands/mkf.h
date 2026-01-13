@@ -1,0 +1,1 @@
+void mkf(int argc, char *argv[]);

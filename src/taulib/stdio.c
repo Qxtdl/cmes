@@ -36,8 +36,9 @@ char *gets(void)
             if (scancode == '\b' && i > 0)
             {
                 i--;
-                *TTY_CHAR = ' ';
+                *TTY_CHAR = '\0';
                 *TTY_WRITE = true;
+				input[i] = '\0';
                 continue;
             }
             putc(scancode);

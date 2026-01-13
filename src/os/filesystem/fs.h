@@ -28,13 +28,13 @@ typedef struct {
 
 extern file_t g_returned_file;
 
-u8 read_disk(u16 addr);
-void read_n_disk(u16 addr, u16 n, u8* target);
-void disk_write(u16 addr, u8 byte);
-void disk_n_write(u16 start_addr, u16 size, u8* data);
-errcode_t fs_create_new_file(const char *filename, const char *extension, u16 size, u8 *data);
+u8 read_disk(u32 addr);
+void read_n_disk(u32 addr, u32 n, u8* target);
+void disk_write(u32 addr, u8 byte);
+void disk_n_write(u32 start_addr, u32 size, u8* data);
+errcode_t fs_create_new_file(const char *filename, const char *extension, u32 size, u8 *data);
 errcode_t fs_modify_file(const char *filename);
 errcode_t fs_find(const char *filename);
 errcode_t fs_get_file_at(u32 index);
-u16 fs_read(void *dest, const char *filename);
+u32 fs_read(void *dest, const char *filename);
 void print_errcode(errcode_t code);

@@ -1,10 +1,12 @@
+#include <stdint.h>
+
 #include "../../../taulib/stdio.h"
 #include "../../../taulib/string.h"
 
 void wtxt(int argc, char *argv[]) {
     char *input = gets();
 
-    u32 addr_val = hex_to_u16(argv[0]);
+    uintptr_t addr_val = hex_str_to_u32(argv[0]);
     char *addr = (char *)addr_val;
 
     u32 len = strlen(input);

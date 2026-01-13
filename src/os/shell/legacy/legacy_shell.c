@@ -1,6 +1,7 @@
 #include "../../../taulib/globals.h"
 #include "../../../taulib/string.h"
 #include "../../../taulib/stdio.h"
+#include "../../../taulib/legacy_hex.h"
 #include "../../filesystem/fs.h"
 
 extern file_t g_returned_file;

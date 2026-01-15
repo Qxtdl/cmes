@@ -4,10 +4,9 @@
 #include "../../../taulib/legacy_hex.h"
 #include "../../filesystem/fs.h"
 
-extern file_t g_returned_file;
-
 void legacy_shell(void)
 {
+    #ifdef LEGACY_SHELL_ENABLE
     puts("\nL> ");
     char* command = gets();
 
@@ -126,6 +125,7 @@ void legacy_shell(void)
         else
             puts("\nFile not found\n");
     }
+    #endif
 }
 
 void legacy_shell_loop(void) {

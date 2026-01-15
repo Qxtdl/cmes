@@ -5,9 +5,23 @@
 
 #include <stdarg.h>
 
+#include "stdio.h"
 #include "globals.h"
 #include "memorymap.h"
 #include "string.h"
+
+#define INPUT_SCRIPT
+#ifdef INPUT_SCRIPT
+bool script_finished = false;
+static unsigned int input_index = 0;
+char *input_script[] = {
+	"dskfmt",
+	"wtxt 8310",
+	"test",
+	"mkf / text txt 4 8310",
+	"mkf / folder f 0 0"
+};
+#endif
 
 #define GETS_BUFSIZE 128
 
@@ -16,7 +30,14 @@ void putc(char c);
 char *gets(void)
 {
     static char input[GETS_BUFSIZE];
-
+	#ifdef INPUT_SCRIPT
+	if (script_finished) goto norm;
+	if (input_index >= sizeof(input_script) / sizeof(char *)) script_finished = true;
+	strcpy(input, input_script[input_index++]);
+	puts(input);
+	return input;
+norm:
+	#endif
     u8 i = 0;
     u8 scancode;
     while (1)

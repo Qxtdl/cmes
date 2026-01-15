@@ -7,8 +7,6 @@
 #include "shell/legacy/legacy_shell.h"
 #include "filesystem/fs.h"
 
-extern file_t g_returned_file;
-
 #define DISABLE_POST
 
 void os_main(void);

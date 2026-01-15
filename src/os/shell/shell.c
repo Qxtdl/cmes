@@ -11,8 +11,10 @@
 #include "commands/hex.h"
 #include "commands/dump.h"
 #include "commands/wtxt.h"
+#include "commands/dskfmt.h"
 #include "commands/mkf.h"
 #include "commands/diskstat.h"
+#include "commands/cd.h"
 
 #define MAX_COMMANDS 64
 #define MAX_COMMAND_NAME 16
@@ -34,7 +36,9 @@ struct {
     {"hex", hex},
     {"dump", dump},
     {"wtxt", wtxt},
+    {"dskfmt", diskfmt},
     {"mkf", mkf},
+    {"cd", cd},
     {"diskstat", diskstat},
     {NULL, NULL}
 };

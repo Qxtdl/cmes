@@ -1,0 +1,1 @@
+void diskfmt(int argc, char *argv[]);

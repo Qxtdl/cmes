@@ -14,6 +14,6 @@ void wtxt(int argc, char *argv[]) {
     for (u32 i = 0; i < len; i++) {
         addr[i] = input[i];
     }
-
+    
     addr[len] = '\0';
 }

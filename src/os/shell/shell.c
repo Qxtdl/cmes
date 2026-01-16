@@ -15,6 +15,7 @@
 #include "commands/mkf.h"
 #include "commands/diskstat.h"
 #include "commands/cd.h"
+#include "commands/mdf.h"
 
 #define MAX_COMMANDS 64
 #define MAX_COMMAND_NAME 16
@@ -38,6 +39,7 @@ struct {
     {"wtxt", wtxt},
     {"dskfmt", diskfmt},
     {"mkf", mkf},
+    {"mdf", mdf},
     {"cd", cd},
     {"diskstat", diskstat},
     {NULL, NULL}

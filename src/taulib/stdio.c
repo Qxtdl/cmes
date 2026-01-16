@@ -10,21 +10,24 @@
 #include "memorymap.h"
 #include "string.h"
 
-#define INPUT_SCRIPTD
+#define INPUT_SCRIPT
 #ifdef INPUT_SCRIPT
 bool script_finished = false;
 static unsigned int input_index = 0;
 char *input_script[] = {
 	"dskfmt",
-	"wtxt 8310",
-	"test",
-	"mkf text txt 4 8311",
+	"diskstat",
+	"wtxt 0",
+	"working file system",
+	"mkf text txt 20 0",
+	"cat text",
 	"mkf folder f 0 0",
 	"cd folder",
-	"wtxt 8310",
-	"test",
-	"mkf test txt 4 8310",
-	"ls"
+	"wtxt 0",
+	"working folders",
+	"mkf folders txt 16 0",
+	"cat folders",
+	"cd <",
 };
 #endif
 

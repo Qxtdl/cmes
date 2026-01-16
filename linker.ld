@@ -29,6 +29,6 @@ SECTIONS
   } > RAM
 
   _heap_start = .;
-  _heap_end = _stack_top - 1;
   _stack_top = 0xFFC0;
+  _heap_end = _stack_top - 1;
 }

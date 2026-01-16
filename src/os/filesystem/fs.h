@@ -16,7 +16,7 @@
 
 #define ROOT_NODE 0
 
-#define MAX_FILE_NAME_SIZE 32
+#define MAX_FILE_NAME_SIZE 8
 #define MAX_FILE_EXTENSION_NAME_SIZE 4
 
 #define FS_BAD 0
@@ -44,7 +44,7 @@ void disk_n_write(u32 start_addr, u32 size, u8* data);
 errcode_t fs_format_disk(void);
 void fs_set_dir(u32 addr);
 errcode_t fs_create_new_file(const char *filename, const char *extension, u32 size, u8 *data);
-errcode_t fs_modify_file(const char *filename);
+errcode_t fs_modify_file(const char *filename, file_node_t replacement);
 errcode_t fs_find(const char *filename);
 errcode_t fs_loop_dir(void);
 errcode_t fs_get_file_at(u32 index);

@@ -87,7 +87,6 @@ void fs_set_dir(u32 addr) {
 
 errcode_t fs_create_new_file(const char *filename, const char *extension, u32 size, u8 *data)
 {
-    printf("g_dir_addr %x\n", g_dir_addr);
     // Put file data into free data region
     u32 last_created_file_node_address;
     read_n_disk(HEADER_LAST_CREATED_FILE_NODE_ADDRESS_PTR, sizeof(u16), (u8 *)&last_created_file_node_address);
@@ -128,9 +127,12 @@ errcode_t fs_create_new_file(const char *filename, const char *extension, u32 si
     return FS_OK;
 }   
 
-errcode_t fs_modify_file(const char *filename)
+errcode_t fs_modify_file(const char *filename, file_node_t replacement)
 {
-    return 0;
+    if (!fs_find(filename))
+        return FS_BAD;
+    disk_n_write(g_returned_file.self_addr, sizeof(file_node_t), (u8 *)&replacement);
+    return FS_OK;
 }
 
 errcode_t fs_find(const char *filename) 

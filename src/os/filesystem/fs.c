@@ -52,10 +52,14 @@ errcode_t fs_format_disk(void) {
     return FS_OK;
 }
 
-static bool search_node_for_file(u32 node_addr, const char *filename) {
+static bool search_node_for_file(const char *filename) {
     file_node_t node;
-    // Read initial node addr into disk
-    read_n_disk(node_addr, sizeof(file_node_t), (u8 *)&node);
+    read_n_disk(g_dir_addr, sizeof(file_node_t), (u8 *)&node);
+    if (!node.folder_next_file_node_addr) {
+        i_returned_file = node;
+        return true;
+    }
+    read_n_disk(node.folder_next_file_node_addr, sizeof(file_node_t), (u8 *)&node);
 
     while (1) {
         if (!strncmp(node.name, filename, MAX_FILE_NAME_SIZE)) {
@@ -63,12 +67,6 @@ static bool search_node_for_file(u32 node_addr, const char *filename) {
             return true;
         }
 
-        if (*node.extension == 'f' && node.folder_next_file_node_addr)
-            read_n_disk(node.folder_next_file_node_addr, sizeof(file_node_t), (u8 *)&node);
-        else if (*node.extension == 'f' && !node.folder_next_file_node_addr) {
-            i_returned_file = node;
-            return false;
-        }
         else if (node.next_file_node_addr) {
             read_n_disk(node.next_file_node_addr, sizeof(file_node_t), (u8 *)&node);
         } else {
@@ -79,7 +77,7 @@ static bool search_node_for_file(u32 node_addr, const char *filename) {
     }
 }
 
-u32 g_old_dir_addr;
+u32 g_old_dir_addr = ROOT_NODE;
 u32 g_dir_addr = ROOT_NODE; 
 
 void fs_set_dir(u32 addr) {
@@ -87,12 +85,9 @@ void fs_set_dir(u32 addr) {
     g_dir_addr = addr;
 }
 
-errcode_t fs_create_new_file(const char *folder, const char *filename, const char *extension, u32 size, u8 *data)
+errcode_t fs_create_new_file(const char *filename, const char *extension, u32 size, u8 *data)
 {
-    // Does the folder even exist?
-    if (!search_node_for_file(g_dir_addr, folder))
-        return FS_BAD;
-
+    printf("g_dir_addr %x\n", g_dir_addr);
     // Put file data into free data region
     u32 last_created_file_node_address;
     read_n_disk(HEADER_LAST_CREATED_FILE_NODE_ADDRESS_PTR, sizeof(u16), (u8 *)&last_created_file_node_address);
@@ -116,18 +111,16 @@ errcode_t fs_create_new_file(const char *folder, const char *filename, const cha
     new_file.data_ptr = free_data_region;
     new_file.self_addr = last_created_file_node_address;
     new_file.next_file_node_addr = 0;
+    new_file.folder_next_file_node_addr = 0;
 
-    // We searched for the folder earlier now use it
-    search_node_for_file(i_returned_file.self_addr, NULL);
-    i_returned_file.next_file_node_addr = new_file.self_addr;
-
-    // BUGGY
-    disk_n_write(i_returned_file.self_addr, sizeof(file_node_t) - 1, (u8 *)&i_returned_file);
-
-    if (i_returned_file.folder_next_file_node_addr == 0) {
+    search_node_for_file(NULL);
+    if (i_returned_file.self_addr == g_dir_addr) {
         i_returned_file.folder_next_file_node_addr = new_file.self_addr;
-        disk_n_write(i_returned_file.self_addr, sizeof(file_node_t) - 1, (u8 *)&i_returned_file);
     }
+    else
+        i_returned_file.next_file_node_addr = new_file.self_addr;
+
+    disk_n_write(i_returned_file.self_addr, sizeof(file_node_t) - 1, (u8 *)&i_returned_file);
 
     disk_n_write(last_created_file_node_address, sizeof(file_node_t), (u8 *)&new_file);
     disk_n_write(HEADER_LAST_CREATED_FILE_NODE_ADDRESS_PTR, sizeof(u16), (u8 *)&last_created_file_node_address);
@@ -142,26 +135,26 @@ errcode_t fs_modify_file(const char *filename)
 
 errcode_t fs_find(const char *filename) 
 {
-    if (!search_node_for_file(g_dir_addr, filename))
+    if (!search_node_for_file(filename))
         return FS_BAD;
     g_returned_file = i_returned_file;
     return FS_OK;
 }
 
-errcode_t fs_loop_dir(bool init) 
+file_node_t loop_dir_node;
+
+errcode_t fs_loop_dir(void) 
 {
-    static file_node_t node;
-    if (init) {
-        read_n_disk(g_dir_addr, sizeof(file_node_t), (u8 *)&node);
-        return FS_OK;
+    if (loop_dir_node.self_addr == g_dir_addr) {
+        if (!loop_dir_node.folder_next_file_node_addr) return FS_BAD;
+        read_n_disk(loop_dir_node.folder_next_file_node_addr, sizeof(file_node_t), (u8 *)&loop_dir_node);
     }
-
-    if (!node.next_file_node_addr)
-        return FS_BAD;
-
-    read_n_disk(node.next_file_node_addr, sizeof(file_node_t), (u8 *)&g_returned_file);
-    node = g_returned_file;
-
+    else {
+        if (!loop_dir_node.next_file_node_addr) return FS_BAD;
+        read_n_disk(loop_dir_node.next_file_node_addr, sizeof(file_node_t), (u8 *)&loop_dir_node);
+    }
+    g_returned_file = loop_dir_node;
+    
     return FS_OK;
 }
 

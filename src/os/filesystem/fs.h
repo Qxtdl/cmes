@@ -35,16 +35,18 @@ typedef struct {
 extern file_node_t g_returned_file;
 extern u32 g_dir_addr, g_old_dir_addr;
 
+extern file_node_t loop_dir_node;
+
 u8 read_disk(u32 addr);
 void read_n_disk(u32 addr, u32 n, u8* target);
 void disk_write(u32 addr, u8 byte);
 void disk_n_write(u32 start_addr, u32 size, u8* data);
 errcode_t fs_format_disk(void);
 void fs_set_dir(u32 addr);
-errcode_t fs_create_new_file(const char *folder, const char *filename, const char *extension, u32 size, u8 *data);
+errcode_t fs_create_new_file(const char *filename, const char *extension, u32 size, u8 *data);
 errcode_t fs_modify_file(const char *filename);
 errcode_t fs_find(const char *filename);
-errcode_t fs_loop_dir(bool init);
+errcode_t fs_loop_dir(void);
 errcode_t fs_get_file_at(u32 index);
 u32 fs_read(void *dest, const char *filename);
 void print_errcode(errcode_t code);

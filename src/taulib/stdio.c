@@ -10,7 +10,7 @@
 #include "memorymap.h"
 #include "string.h"
 
-#define INPUT_SCRIPT
+#define INPUT_SCRIPTD
 #ifdef INPUT_SCRIPT
 bool script_finished = false;
 static unsigned int input_index = 0;

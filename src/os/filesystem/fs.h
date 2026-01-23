@@ -26,8 +26,8 @@ typedef struct {
     char name[MAX_FILE_NAME_SIZE];
     char extension[MAX_FILE_EXTENSION_NAME_SIZE];
     u32 self_addr;
-    u16 size;
-    u16 data_ptr;
+    u32 size;
+    u32 data_ptr;
     u32 next_file_node_addr;
     u32 folder_next_file_node_addr;
 } file_node_t; 

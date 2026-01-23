@@ -48,7 +48,7 @@ dump:
 
 run:
 	python taurus_encoder.py build/$(OUTPUT).bin
-	./cm2-riscv-emulator build/$(OUTPUT).bin
+	./cm2-riscv-emulator build/$(OUTPUT).bin disk_dump.bin
 
 clean:
 	rm -rf $(BUILD)

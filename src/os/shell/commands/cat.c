@@ -6,7 +6,7 @@ void cat(int argc, char *argv[]) {
         if (strcmp(g_returned_file.extension, "txt")) {
             puts("warning: file is not .txt\n");
         }
-        for (int i = 0; i < g_returned_file.size; i++) {
+        for (u32 i = 0; i < g_returned_file.size; i++) {
             putc(read_disk(g_returned_file.data_ptr++));
         }
     } else puts("File not found\n");

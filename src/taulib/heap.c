@@ -23,8 +23,8 @@ void *malloc(u32 size) {
         return NULL;
     }
 
-    heap_ptr += size;
     printf("malloc %x : %x", size, heap_ptr);
+    heap_ptr += size;
     return (void *)alloc;
 }
 
